@@ -1,0 +1,14 @@
+{
+  "name": "config_util",
+  "keywords": "ESP32, config, utility",
+  "description": "config for esp32",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/fishros/Esp32McpwmMotor.git"
+  },
+  "version": "0.1.0",
+  "frameworks": "arduino",
+  "platforms": "*"
+}
+
