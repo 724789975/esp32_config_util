@@ -19,7 +19,7 @@ namespace CONFIG_UTIL
 	class ConfigUtil
 	{
 	public:
-		ConfigUtil(/* args */){}
+		ConfigUtil(/* args */);
 		~ ConfigUtil(){}
 
 		ConfigUtil& Init(const char* namespace_, ConfigUtilInitFunc = nullptr);
@@ -28,9 +28,13 @@ namespace CONFIG_UTIL
 
 		template<typename T>
 		T GetConfig(const char* key);
+
+		config_status LoopConfigUart(int c, char result[][32]);
 	private:
 		/* data */
-		Preferences preferences;
+		Preferences m_oPreferences;
+		char m_szLine[512];
+		int m_dwIndex;
 	};
 	template <typename T>
 	inline T ConfigUtil::GetConfig(const char *key)
@@ -41,31 +45,31 @@ namespace CONFIG_UTIL
 	template<>
 	inline int ConfigUtil::GetConfig<int>(const char *key)
 	{
-		return this->preferences.getString(key, "0").toInt();
+		return this->m_oPreferences.getString(key, "0").toInt();
 	}
 
 	template<>
 	inline float ConfigUtil::GetConfig<float>(const char *key)
 	{
-		return this->preferences.getString(key, "0.0").toFloat();
+		return this->m_oPreferences.getString(key, "0.0").toFloat();
 	}
 
 	template<>
 	inline bool ConfigUtil::GetConfig<bool>(const char *key)
 	{
-		return this->preferences.getBool(key);
+		return this->m_oPreferences.getBool(key);
 	}
 
 	template<>
 	inline const char* ConfigUtil::GetConfig<const char*>(const char *key)
 	{
-		return this->preferences.getString(key).c_str();
+		return this->m_oPreferences.getString(key).c_str();
 	}
 
 	template<>
 	inline String ConfigUtil::GetConfig<String>(const char *key)
 	{
-		return this->preferences.getString(key);
+		return this->m_oPreferences.getString(key);
 	}
 
 
