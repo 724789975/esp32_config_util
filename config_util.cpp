@@ -6,9 +6,9 @@ namespace CONFIG_UTIL
 		: m_dwIndex(0)
 	{ }
 
-	ConfigUtil &ConfigUtil::Init(const char* namespace_, ConfigUtilInitFunc pf)
+	ConfigUtil &ConfigUtil::Init(const char* szNamespace, ConfigUtilInitFunc pf)
 	{
-		this->m_oPreferences.begin(namespace_, false);
+		this->m_oPreferences.begin(szNamespace, false);
 		if (pf)
 		{
 			pf(this);
@@ -21,42 +21,30 @@ namespace CONFIG_UTIL
 		return this->m_oPreferences.putString(key, value);
 	}
 
-	/**
-	 * @brief 处理串口数据，并调用deal_command函数处理解析结果。
-	 * 只会处理command命令，配置设置直接执行，不会抛到deal_command函数中。
-	 * 格式：$command=xxx
-	 * 例如：$command=reboot
-	 * 注意：命令中不能包含空格
-	 * 配置设置格式：$key=value
-	 * 例如：$ssid=mywifi
-	 * 注意：key和value中不能包含空格，并且这个不会回调pFunc函数
-	 * 
-	 * @param pFunc 
-	 */
 	void ConfigUtil::DealCommand(DealCommandFunc pFunc)
 	{
-		char result[10][32];
-		int config_result; // 用于存储解析配置数据的结果
+		char pszResult[10][32];
+		int wConfigResult; // 用于存储解析配置数据的结果
 		// 不断读取串口数据，直到串口中没有数据可读
 		while (Serial.available())
 		{
 			int c = Serial.read();
 			// 调用config对象的loop_config_uart函数，该函数用于解析读取到的配置数据，并将解析结果存储在result数组中
 			// config_result表示解析结果的状态
-			config_result = this->LoopConfigUart(c, result);
-			if (config_result == config_status::CONFIG_PARSE_OK)
+			wConfigResult = this->LoopConfigUart(c, pszResult);
+			if (wConfigResult == config_status::CONFIG_PARSE_OK)
 			{
-				if (strcmp(result[0], "command") == 0)
-				{
+				if (strcmp(pszResult[0], "command") == 0)
+			{
 					// 调用deal_command函数处理解析结果。
-					pFunc(result[0], result[1]);
+					pFunc(pszResult[0], pszResult[1]);
 					return;
 				}
-				this->SetConfig(result[0], result[1]);
-				Serial.printf("$%s=%s ok\n", result[0], result[1]);
+				this->SetConfig(pszResult[0], pszResult[1]);
+				Serial.printf("$%s=%s ok\n", pszResult[0], pszResult[1]);
 			}
 			// 调用deal_command函数处理解析结果。
-			else if (config_result == config_status::CONFIG_PARSE_ERROR)
+			else if (wConfigResult == config_status::CONFIG_PARSE_ERROR)
 			{
 				Serial.print("$result=error parse\n");
 			}
@@ -69,26 +57,26 @@ namespace CONFIG_UTIL
 	 * @param result  1 正常分割，-1 错误分割
 	 * @return config_status
 	 */
-	config_status split_str(const char *line, char result[][32])
+	config_status split_str(const char *szLine, char pszResult[][32])
 	{
-		if (line[0] != '$')
+		if (szLine[0] != '$')
 			return config_status::CONFIG_PARSE_ERROR;
-		uint16_t index = 0;
-		uint16_t count = 0;
-		uint16_t temp_index = 0;
-		for (index = 1; line[index] != '\0'; index++)
+		uint16_t wIndex = 0;
+		uint16_t wCount = 0;
+		uint16_t wTempIndex = 0;
+		for (wIndex = 1; szLine[wIndex] != '\0'; wIndex++)
 		{
-			if (line[index] == '=')
+			if (szLine[wIndex] == '=')
 			{
-				result[count++][temp_index++] = '\0';
-				temp_index = 0;
+				pszResult[wCount++][wTempIndex++] = '\0';
+				wTempIndex = 0;
 				continue;
 			}
-			result[count][temp_index++] = line[index];
+			pszResult[wCount][wTempIndex++] = szLine[wIndex];
 		}
-		result[count][temp_index++] = '\0';
+		pszResult[wCount][wTempIndex++] = '\0';
 
-		if (count != 1)
+		if (wCount != 1)
 		{
 			return config_status::CONFIG_PARSE_ERROR;
 		}
