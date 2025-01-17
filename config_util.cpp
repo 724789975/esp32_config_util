@@ -24,6 +24,12 @@ namespace CONFIG_UTIL
 	/**
 	 * @brief 处理串口数据，并调用deal_command函数处理解析结果。
 	 * 只会处理command命令，配置设置直接执行，不会抛到deal_command函数中。
+	 * 格式：$command=xxx
+	 * 例如：$command=reboot
+	 * 注意：命令中不能包含空格
+	 * 配置设置格式：$key=value
+	 * 例如：$ssid=mywifi
+	 * 注意：key和value中不能包含空格，并且这个不会回调pFunc函数
 	 * 
 	 * @param pFunc 
 	 */
