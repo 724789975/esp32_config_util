@@ -15,6 +15,7 @@ namespace CONFIG_UTIL
 	class ConfigUtil;
 
 	typedef void (*ConfigUtilInitFunc)(ConfigUtil* pConfigUtil);
+	typedef void (*DealCommandFunc)(const char* szCommand, const char* szParams);
 
 	class ConfigUtil
 	{
@@ -29,8 +30,10 @@ namespace CONFIG_UTIL
 		template<typename T>
 		T GetConfig(const char* key);
 
-		config_status LoopConfigUart(int c, char result[][32]);
+		void DealCommand(DealCommandFunc pFunc);
+
 	private:
+		config_status LoopConfigUart(int c, char result[][32]);
 		/* data */
 		Preferences m_oPreferences;
 		char m_szLine[512];
